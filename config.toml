@@ -1,4 +1,4 @@
-webhook_url = "ここに取得したDiscordのWebhook_URLを貼り付けてください"
+webhook_url = "https://discordapp.com/api/webhooks/1506181559332634624/lUW2_ZVIqhcwMHipf0VLx4zca0LUuUjru1IeEHnbg4rwhNzv5nB3JZDPZHlaX88fP1ZL"
 
 [stores]
 zip_code = ""

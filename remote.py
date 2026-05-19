@@ -1,28 +1,33 @@
 import asyncio
 from monitor import Monitor
 from interface import CallbacksAbstract
-# config.tomlを読み込む処理が走るようにインポート
-import confighandler 
 
-async def main():
-    print("Discord通知モードで起動します...")
-    
-    # 変更したDiscord用のコールバックを初期化
+def main():
+    print("🚀 Discord通知モードで常時監視を開始します...")
     callbacks = CallbacksAbstract()
-    await callbacks.on_start()
+    
+    # 衝突を防ぐために、専用のループ（実行レーン）を用意
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    # 起動通知を送信
+    loop.run_until_complete(callbacks.on_start())
 
     try:
-        # モニター（監視システム）にコールバックを渡して起動
-        # ※元のmonitor.pyの仕様に合わせていますが、もし引数エラーが出る場合は微調整が必要です
+        # モニターの初期化と起動
         app_monitor = Monitor(callbacks)
-        await app_monitor.start()
+        loop.run_until_complete(app_monitor.start())
         
-        # 監視ループを維持
+        # 終了されないように待機し続ける
         while True:
-            await asyncio.sleep(3600)
+            loop.run_until_complete(asyncio.sleep(3600))
+            
     except KeyboardInterrupt:
-        await callbacks.on_stop()
-        print("終了します。")
+        # Ctrl+Cで止めた時
+        loop.run_until_complete(callbacks.on_stop())
+        print("🛑 監視を停止しました。")
+    except Exception as e:
+        print(f"❌ エラーが発生しました: {e}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
